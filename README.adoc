@@ -1,0 +1,552 @@
+= modern-gitops-stack-module-minio
+// Document attributes to replace along the document
+:minio-chart-version: 5.0.13
+:original-repo-url: https://github.com/minio/minio/tree/master/helm/minio
+
+A https://modern-gitops-stack.io[Modern GitOps Stack] module to deploy https://min.io/[MinIO].
+
+The MinIO chart used by this module is shipped in this repository as well, in order to avoid any unwanted behaviors caused by unsupported versions. 
+
+[cols="1,1,1",options="autowidth,header"]
+|===
+|Current Chart Version |Original Repository |Default Values
+|*{minio-chart-version}* |{original-repo-url}[Chart] |https://artifacthub.io/packages/helm/minio-official/minio/{minio-chart-version}?modal=values[`values.yaml`]
+|===
+
+== Usage
+
+This module can be declared by adding the following block on your Terraform configuration:
+
+[source,terraform]
+----
+module "minio" {
+  source = "git::https://github.com/GersonRS/modern-gitops-stack-module-minio.git?ref=<RELEASE>"
+
+  cluster_name     = local.cluster_name
+  base_domain      = local.base_domain
+  cluster_issuer   = local.cluster_issuer
+  argocd_namespace = module.argocd_bootstrap.argocd_namespace
+
+  enable_service_monitor = false # Needs to be false for the first deployment
+
+  config_minio = local.minio_config
+
+  oidc = module.oidc.oidc
+
+  dependency_ids = {
+    argocd = module.argocd_bootstrap.id
+  }
+}
+----
+
+The `config_minio` variable is where you create the necessary policies, users and buckets. In this example, we defined them inside a Terraform local variable:
+
+[source,terraform]
+----
+resource "random_password" "loki_secretkey" {
+  length  = 32
+  special = false
+}
+resource "random_password" "thanos_secretkey" {
+  length  = 32
+  special = false
+}
+
+locals {
+  minio_config = {
+    policies = [
+      {
+        name = "loki-policy"
+        statements = [
+          {
+            resources = ["arn:aws:s3:::loki-bucket"]
+            actions   = ["s3:CreateBucket", "s3:DeleteBucket", "s3:GetBucketLocation", "s3:ListBucket", "s3:ListBucketMultipartUploads"]
+          },
+          {
+            resources = ["arn:aws:s3:::loki-bucket/*"]
+            actions   = ["s3:GetObject", "s3:PutObject", "s3:DeleteObject"]
+          }
+        ]
+      },
+      {
+        name = "thanos-policy"
+        statements = [
+          {
+            resources = ["arn:aws:s3:::thanos-bucket"]
+            actions   = ["s3:CreateBucket", "s3:DeleteBucket", "s3:GetBucketLocation", "s3:ListBucket", "s3:ListBucketMultipartUploads"]
+          },
+          {
+            resources = ["arn:aws:s3:::thanos-bucket/*"]
+            actions   = ["s3:GetObject", "s3:PutObject", "s3:DeleteObject"]
+          }
+        ]
+      }
+    ],
+    users = [
+      {
+        accessKey = "loki-user"
+        secretKey = random_password.loki_secretkey.result
+        policy    = "loki-policy"
+      },
+      {
+        accessKey = "thanos-user"
+        secretKey = random_password.thanos_secretkey.result
+        policy    = "thanos-policy"
+      }scope
+    ],
+    buckets = [
+      {
+        name = "loki-bucket"
+      },
+      {
+        name = "thanos-bucket"
+      }
+    ]
+  }
+}
+----
+
+TIP: Check the KinD deployment xref:ROOT:ROOT:tutorials/deploy_kind.adoc[tutorial] and https://github.com/GersonRS/modern-gitops-stack/tree/main/examples/kind[example] to get a better idea of how these buckets are configured and used.
+
+=== WebUI Login
+
+This module is configured to used OIDC out-of-the-box, as long as the proper configuration is passed. You can check the https://min.io/docs/minio/linux/operations/external-iam/configure-keycloak-identity-management.html[official documentation] page to get more information about the way this is configured.
+
+NOTE: The OIDC will not work with the `selfsigned-issuer` cluster issuer, which is the one deployed by default by the cert-manager module. You are required to use the `ca-issuer` or any of the Let's Encrypt issuers if you want to login to the MinIO Console using OIDC.
+
+== Technical Reference
+
+=== Dependencies
+
+==== `module.traefik.id` and `module.cert-manager.id`
+
+In order to have a working ingress to be able to access the web interface.
+
+==== `module.oidc.id`
+
+In order to have the ability to login using OIDC.
+
+// BEGIN_TF_DOCS
+=== Requirements
+
+The following requirements are needed by this module:
+
+- [[requirement_argocd]] <<requirement_argocd,argocd>> (>= 5)
+
+- [[requirement_null]] <<requirement_null,null>> (>= 3)
+
+- [[requirement_random]] <<requirement_random,random>> (>= 3)
+
+- [[requirement_utils]] <<requirement_utils,utils>> (>= 1)
+
+=== Providers
+
+The following providers are used by this module:
+
+- [[provider_null]] <<provider_null,null>> (>= 3)
+
+- [[provider_random]] <<provider_random,random>> (>= 3)
+
+- [[provider_utils]] <<provider_utils,utils>> (>= 1)
+
+- [[provider_argocd]] <<provider_argocd,argocd>> (>= 5)
+
+=== Resources
+
+The following resources are used by this module:
+
+- https://registry.terraform.io/providers/oboukili/argocd/latest/docs/resources/application[argocd_application.this] (resource)
+- https://registry.terraform.io/providers/oboukili/argocd/latest/docs/resources/project[argocd_project.this] (resource)
+- https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource[null_resource.dependencies] (resource)
+- https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource[null_resource.this] (resource)
+- https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/password[random_password.minio_root_secretkey] (resource)
+- https://registry.terraform.io/providers/cloudposse/utils/latest/docs/data-sources/deep_merge_yaml[utils_deep_merge_yaml.values] (data source)
+
+=== Required Inputs
+
+The following input variables are required:
+
+==== [[input_cluster_name]] <<input_cluster_name,cluster_name>>
+
+Description: Name given to the cluster. Value used for naming some the resources created by the module.
+
+Type: `string`
+
+==== [[input_base_domain]] <<input_base_domain,base_domain>>
+
+Description: Base domain of the cluster. Value used for the ingress' URL of the application.
+
+Type: `string`
+
+=== Optional Inputs
+
+The following input variables are optional (have default values):
+
+==== [[input_subdomain]] <<input_subdomain,subdomain>>
+
+Description: Subdomain of the cluster. Value used for the ingress' URL of the application.
+
+Type: `string`
+
+Default: `"apps"`
+
+==== [[input_argocd_project]] <<input_argocd_project,argocd_project>>
+
+Description: Name of the Argo CD AppProject where the Application should be created. If not set, the Application will be created in a new AppProject only for this Application.
+
+Type: `string`
+
+Default: `null`
+
+==== [[input_argocd_labels]] <<input_argocd_labels,argocd_labels>>
+
+Description: Labels to attach to the Argo CD Application resource.
+
+Type: `map(string)`
+
+Default: `{}`
+
+==== [[input_destination_cluster]] <<input_destination_cluster,destination_cluster>>
+
+Description: Destination cluster where the application should be deployed.
+
+Type: `string`
+
+Default: `"in-cluster"`
+
+==== [[input_target_revision]] <<input_target_revision,target_revision>>
+
+Description: Override of target revision of the application chart.
+
+Type: `string`
+
+Default: `"v3.1.0"`
+
+==== [[input_cluster_issuer]] <<input_cluster_issuer,cluster_issuer>>
+
+Description: SSL certificate issuer to use. Usually you would configure this value as `letsencrypt-staging` or `letsencrypt-prod` on your root `*.tf` files.
+
+Type: `string`
+
+Default: `"selfsigned-issuer"`
+
+==== [[input_enable_service_monitor]] <<input_enable_service_monitor,enable_service_monitor>>
+
+Description: Enable Prometheus ServiceMonitor in the Helm chart.
+
+Type: `bool`
+
+Default: `true`
+
+==== [[input_helm_values]] <<input_helm_values,helm_values>>
+
+Description: Helm chart value overrides. They should be passed as a list of HCL structures.
+
+Type: `any`
+
+Default: `[]`
+
+==== [[input_app_autosync]] <<input_app_autosync,app_autosync>>
+
+Description: Automated sync options for the Argo CD Application resource.
+
+Type:
+[source,hcl]
+----
+object({
+    allow_empty = optional(bool)
+    prune       = optional(bool)
+    self_heal   = optional(bool)
+  })
+----
+
+Default:
+[source,json]
+----
+{
+  "allow_empty": false,
+  "prune": true,
+  "self_heal": true
+}
+----
+
+==== [[input_dependency_ids]] <<input_dependency_ids,dependency_ids>>
+
+Description: IDs of the other modules on which this module depends on.
+
+Type: `map(string)`
+
+Default: `{}`
+
+==== [[input_config_minio]] <<input_config_minio,config_minio>>
+
+Description: Variable to create buckets and required users and policies.
+
+Type:
+[source,hcl]
+----
+object({
+    policies = optional(list(object({
+      name = string
+      statements = list(object({
+        resources = list(string)
+        actions   = list(string)
+      }))
+    })), [])
+    users = optional(list(object({
+      accessKey = string
+      secretKey = string
+      policy    = string
+    })), [])
+    buckets = optional(list(object({
+      name          = string
+      policy        = optional(string, "none")
+      purge         = optional(bool, false)
+      versioning    = optional(bool, false)
+      objectlocking = optional(bool, false)
+    })), [])
+  })
+----
+
+Default: `{}`
+
+==== [[input_oidc]] <<input_oidc,oidc>>
+
+Description: OIDC configuration to access the MinIO web interface.
+
+Type:
+[source,hcl]
+----
+object({
+    issuer_url              = string
+    oauth_url               = string
+    token_url               = string
+    api_url                 = string
+    client_id               = string
+    client_secret           = string
+    oauth2_proxy_extra_args = optional(list(string), [])
+  })
+----
+
+Default: `null`
+
+=== Outputs
+
+The following outputs are exported:
+
+==== [[output_id]] <<output_id,id>>
+
+Description: ID to pass other modules in order to refer to this module as a dependency.
+
+==== [[output_endpoint]] <<output_endpoint,endpoint>>
+
+Description: MinIO endpoint where the buckets are available.
+
+==== [[output_minio_root_user_credentials]] <<output_minio_root_user_credentials,minio_root_user_credentials>>
+
+Description: The MinIO root user password.
+// END_TF_DOCS
+
+=== Reference in table format 
+
+.Show tables
+[%collapsible]
+====
+// BEGIN_TF_TABLES
+= Requirements
+
+[cols="a,a",options="header,autowidth"]
+|===
+|Name |Version
+|[[requirement_argocd]] <<requirement_argocd,argocd>> |>= 5
+|[[requirement_null]] <<requirement_null,null>> |>= 3
+|[[requirement_random]] <<requirement_random,random>> |>= 3
+|[[requirement_utils]] <<requirement_utils,utils>> |>= 1
+|===
+
+= Providers
+
+[cols="a,a",options="header,autowidth"]
+|===
+|Name |Version
+|[[provider_random]] <<provider_random,random>> |>= 3
+|[[provider_utils]] <<provider_utils,utils>> |>= 1
+|[[provider_argocd]] <<provider_argocd,argocd>> |>= 5
+|[[provider_null]] <<provider_null,null>> |>= 3
+|===
+
+= Resources
+
+[cols="a,a",options="header,autowidth"]
+|===
+|Name |Type
+|https://registry.terraform.io/providers/oboukili/argocd/latest/docs/resources/application[argocd_application.this] |resource
+|https://registry.terraform.io/providers/oboukili/argocd/latest/docs/resources/project[argocd_project.this] |resource
+|https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource[null_resource.dependencies] |resource
+|https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource[null_resource.this] |resource
+|https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/password[random_password.minio_root_secretkey] |resource
+|https://registry.terraform.io/providers/cloudposse/utils/latest/docs/data-sources/deep_merge_yaml[utils_deep_merge_yaml.values] |data source
+|===
+
+= Inputs
+
+[cols="a,a,a,a,a",options="header,autowidth"]
+|===
+|Name |Description |Type |Default |Required
+|[[input_cluster_name]] <<input_cluster_name,cluster_name>>
+|Name given to the cluster. Value used for naming some the resources created by the module.
+|`string`
+|n/a
+|yes
+
+|[[input_base_domain]] <<input_base_domain,base_domain>>
+|Base domain of the cluster. Value used for the ingress' URL of the application.
+|`string`
+|n/a
+|yes
+
+|[[input_subdomain]] <<input_subdomain,subdomain>>
+|Subdomain of the cluster. Value used for the ingress' URL of the application.
+|`string`
+|`"apps"`
+|no
+
+|[[input_argocd_project]] <<input_argocd_project,argocd_project>>
+|Name of the Argo CD AppProject where the Application should be created. If not set, the Application will be created in a new AppProject only for this Application.
+|`string`
+|`null`
+|no
+
+|[[input_argocd_labels]] <<input_argocd_labels,argocd_labels>>
+|Labels to attach to the Argo CD Application resource.
+|`map(string)`
+|`{}`
+|no
+
+|[[input_destination_cluster]] <<input_destination_cluster,destination_cluster>>
+|Destination cluster where the application should be deployed.
+|`string`
+|`"in-cluster"`
+|no
+
+|[[input_target_revision]] <<input_target_revision,target_revision>>
+|Override of target revision of the application chart.
+|`string`
+|`"v3.1.0"`
+|no
+
+|[[input_cluster_issuer]] <<input_cluster_issuer,cluster_issuer>>
+|SSL certificate issuer to use. Usually you would configure this value as `letsencrypt-staging` or `letsencrypt-prod` on your root `*.tf` files.
+|`string`
+|`"selfsigned-issuer"`
+|no
+
+|[[input_enable_service_monitor]] <<input_enable_service_monitor,enable_service_monitor>>
+|Enable Prometheus ServiceMonitor in the Helm chart.
+|`bool`
+|`true`
+|no
+
+|[[input_helm_values]] <<input_helm_values,helm_values>>
+|Helm chart value overrides. They should be passed as a list of HCL structures.
+|`any`
+|`[]`
+|no
+
+|[[input_app_autosync]] <<input_app_autosync,app_autosync>>
+|Automated sync options for the Argo CD Application resource.
+|
+
+[source]
+----
+object({
+    allow_empty = optional(bool)
+    prune       = optional(bool)
+    self_heal   = optional(bool)
+  })
+----
+
+|
+
+[source]
+----
+{
+  "allow_empty": false,
+  "prune": true,
+  "self_heal": true
+}
+----
+
+|no
+
+|[[input_dependency_ids]] <<input_dependency_ids,dependency_ids>>
+|IDs of the other modules on which this module depends on.
+|`map(string)`
+|`{}`
+|no
+
+|[[input_config_minio]] <<input_config_minio,config_minio>>
+|Variable to create buckets and required users and policies.
+|
+
+[source]
+----
+object({
+    policies = optional(list(object({
+      name = string
+      statements = list(object({
+        resources = list(string)
+        actions   = list(string)
+      }))
+    })), [])
+    users = optional(list(object({
+      accessKey = string
+      secretKey = string
+      policy    = string
+    })), [])
+    buckets = optional(list(object({
+      name          = string
+      policy        = optional(string, "none")
+      purge         = optional(bool, false)
+      versioning    = optional(bool, false)
+      objectlocking = optional(bool, false)
+    })), [])
+  })
+----
+
+|`{}`
+|no
+
+|[[input_oidc]] <<input_oidc,oidc>>
+|OIDC configuration to access the MinIO web interface.
+|
+
+[source]
+----
+object({
+    issuer_url              = string
+    oauth_url               = string
+    token_url               = string
+    api_url                 = string
+    client_id               = string
+    client_secret           = string
+    oauth2_proxy_extra_args = optional(list(string), [])
+  })
+----
+
+|`null`
+|no
+
+|===
+
+= Outputs
+
+[cols="a,a",options="header,autowidth"]
+|===
+|Name |Description
+|[[output_id]] <<output_id,id>> |ID to pass other modules in order to refer to this module as a dependency.
+|[[output_endpoint]] <<output_endpoint,endpoint>> |MinIO endpoint where the buckets are available.
+|[[output_minio_root_user_credentials]] <<output_minio_root_user_credentials,minio_root_user_credentials>> |The MinIO root user password.
+|===
+// END_TF_TABLES
+====
