@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.1.0](https://github.com/GersonRS/modern-gitops-stack-module-minio/compare/v1.0.0...v1.1.0) (2024-04-26)
+
+
+### Features
+
+* include page in documentation ([d6d495d](https://github.com/GersonRS/modern-gitops-stack-module-minio/commit/d6d495d8d0ca4fbd587aa0acd2fe8955850a0d94))
+
+
+### Bug Fixes
+
+* adjust module target revision ([2479aea](https://github.com/GersonRS/modern-gitops-stack-module-minio/commit/2479aea5459a3a09002061efb8c37b4084c5dc14))
+
 ## 1.0.0 (2024-04-24)
 
 
