@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/GersonRS/modern-gitops-stack-module-minio/compare/v1.1.0...v1.2.0) (2024-04-28)
+
+
+### Features
+
+* Update minio config and change mode to distributed mode ([cca6ff1](https://github.com/GersonRS/modern-gitops-stack-module-minio/commit/cca6ff1eed86264a89d44fd8fa314af6d8e6a87e))
+
 ## [1.1.0](https://github.com/GersonRS/modern-gitops-stack-module-minio/compare/v1.0.0...v1.1.0) (2024-04-26)
 
 
