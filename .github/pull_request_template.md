@@ -6,14 +6,12 @@ _In most cases, you can leave out details about how a change has been made. Code
 
 ## Breaking change
 
-- [ ] No
-- [ ] Yes (in the Helm chart(s)): _indicate the chart, version & release note link_
-- [ ] Yes (in the module itself): _give an explanation of the breaking change_
+* [ ] No
+* [ ] Yes (in the Helm chart(s)): _indicate the chart, version & release note link_
+* [ ] Yes (in the module itself): _give an explanation of the breaking change_
 
 ## Tests executed on which distribution(s)
 
-- [ ] KinD
-- [ ] AKS (Azure)
-- [ ] EKS (AWS)
-- [ ] Scaleway
-- [ ] SKS (Exoscale)
+* [ ] KinD
+* [ ] AKS (Azure)
+* [ ] EKS (AWS)
