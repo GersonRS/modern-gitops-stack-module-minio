@@ -33,12 +33,16 @@ jobs:
       matrix:
         update-strategy: ["major", "minor"]
     uses: GersonRS/modern-gitops-stack/.github/workflows/modules-chart-update.yaml@main
+    secrets:
+      PAT: ${{ secrets.PAT }}
     with:
       update-strategy: ${{ matrix.update-strategy }}
 
   chart-update-manual:
     if: ${{ github.event_name == 'workflow_dispatch' }}
     uses: GersonRS/modern-gitops-stack/.github/workflows/modules-chart-update.yaml@main
+    secrets:
+      PAT: ${{ secrets.PAT }}
     with:
       update-strategy: ${{ inputs.update-strategy }}
       excluded-dependencies: ${{ inputs.excluded-dependencies }}
