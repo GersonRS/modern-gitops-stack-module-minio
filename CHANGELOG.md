@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.5.0](https://github.com/GersonRS/modern-gitops-stack-module-minio/compare/v2.4.0...v2.5.0) (2024-05-01)
+
+
+### 🚀 New Features
+
+* change chart update to include secrets ([5953029](https://github.com/GersonRS/modern-gitops-stack-module-minio/commit/59530294ae4377b6ec163d44f42fe7e79ef4bd13))
+
+
+### 📚 Documentation
+
+* **terraform-docs:** generate docs and write to README.adoc ([e009d6b](https://github.com/GersonRS/modern-gitops-stack-module-minio/commit/e009d6bac4e14fa2edc024d1a55d7e65c383cabb))
+
 ## [2.4.0](https://github.com/GersonRS/modern-gitops-stack-module-minio/compare/v2.3.0...v2.4.0) (2024-05-01)
 
 
