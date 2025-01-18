@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.6.1](https://github.com/GersonRS/modern-gitops-stack-module-minio/compare/v2.6.0...v2.6.1) (2025-01-18)
+
+
+### 📚 Documentation
+
+* **terraform-docs:** generate docs and write to README.adoc ([a1a8778](https://github.com/GersonRS/modern-gitops-stack-module-minio/commit/a1a8778e5a86e2f7066fada8c0f4c1ca80517b40))
+
 ## [2.6.0](https://github.com/GersonRS/modern-gitops-stack-module-minio/compare/v2.5.0...v2.6.0) (2025-01-18)
 
 
