@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.6.0](https://github.com/GersonRS/modern-gitops-stack-module-minio/compare/v2.5.0...v2.6.0) (2025-01-18)
+
+
+### 🚀 New Features
+
+* update project ([e3fe7a9](https://github.com/GersonRS/modern-gitops-stack-module-minio/commit/e3fe7a9c21543295026f4e7543fd4dee26252107))
+
 ## [2.5.0](https://github.com/GersonRS/modern-gitops-stack-module-minio/compare/v2.4.0...v2.5.0) (2024-05-01)
 
 
