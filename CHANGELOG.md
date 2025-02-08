@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.6.2](https://github.com/GersonRS/modern-gitops-stack-module-minio/compare/v2.6.1...v2.6.2) (2025-02-08)
+
+
+### ⌨️ Code Refactoring
+
+* adjust workflows ([b9fdfed](https://github.com/GersonRS/modern-gitops-stack-module-minio/commit/b9fdfed19a692ea34d58dbe37134bd42359578eb))
+* try adjust code 5 ([547d7fc](https://github.com/GersonRS/modern-gitops-stack-module-minio/commit/547d7fc1f6f26807669beaefc2b1c92fa00ca958))
+
 ## [2.6.1](https://github.com/GersonRS/modern-gitops-stack-module-minio/compare/v2.6.0...v2.6.1) (2025-01-18)
 
 
