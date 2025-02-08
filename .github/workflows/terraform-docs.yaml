@@ -3,7 +3,12 @@ name: "terraform-docs"
 
 on:
   pull_request:
+    branches:
+      - "main"
+    paths:
+      - "**.tf"
 
 jobs:
   terraform-docs:
+    if: startsWith(github.head_ref, 'release')
     uses: GersonRS/modern-gitops-stack/.github/workflows/modules-terraform-docs.yaml@main
