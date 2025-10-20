@@ -1,5 +1,22 @@
 # Changelog
 
+## [2.7.0](https://github.com/GersonRS/modern-gitops-stack-module-minio/compare/v2.6.2...v2.7.0) (2025-10-20)
+
+
+### 🚀 New Features
+
+* add validation ([e43632d](https://github.com/GersonRS/modern-gitops-stack-module-minio/commit/e43632dc2326237de7d7f20af56390246f56eec8))
+* adiciona configurações detalhadas do ServiceMonitor para métricas do Prometheus ([f95e3ee](https://github.com/GersonRS/modern-gitops-stack-module-minio/commit/f95e3ee05bd5e2da495e416e3426087fa9f498a8))
+* adjust code ([d13b59c](https://github.com/GersonRS/modern-gitops-stack-module-minio/commit/d13b59cd24ff40a53097f66d5e6863a4ed515694))
+* **chart:** minor update of dependencies on minio chart ([dc81100](https://github.com/GersonRS/modern-gitops-stack-module-minio/commit/dc811008c01e4578302ce336bc47ffa6bb895854))
+* **chart:** minor update of dependencies on minio chart ([ad05b3c](https://github.com/GersonRS/modern-gitops-stack-module-minio/commit/ad05b3c6fbfb19ce1b2a1114d83d939ebc88c93a))
+* melhorias na configuração do MinIO e validação de persistência ([4e57cab](https://github.com/GersonRS/modern-gitops-stack-module-minio/commit/4e57cabfa6182b3295b71d5838436586d40ebb2e))
+
+
+### 🔥 Bug Fixes
+
+* adiciona validação para tamanho mínimo de persistência de 10GB ([4fd95a7](https://github.com/GersonRS/modern-gitops-stack-module-minio/commit/4fd95a7bc0b6cc01bbe817e3727f691ab7585966))
+
 ## [2.6.2](https://github.com/GersonRS/modern-gitops-stack-module-minio/compare/v2.6.1...v2.6.2) (2025-02-08)
 
 
