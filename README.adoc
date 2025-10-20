@@ -1,6 +1,6 @@
 = modern-gitops-stack-module-minio
 // Document attributes to replace along the document
-:minio-chart-version: 5.2.0
+:minio-chart-version: 5.4.0
 :original-repo-url: https://github.com/minio/minio/tree/master/helm/minio
 
 A https://modern-gitops-stack.io[Modern GitOps Stack] module to deploy https://min.io/[MinIO].
