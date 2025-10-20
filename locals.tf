@@ -70,7 +70,11 @@ locals {
         }
         metrics = {
           serviceMonitor = {
-            enabled = var.enable_service_monitor
+            enabled       = var.enable_service_monitor
+            includeNode   = true
+            interval      = "30s"
+            scrapeTimeout = "10s"
+            public        = true
           }
         }
         rootUser     = "root"
