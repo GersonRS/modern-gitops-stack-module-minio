@@ -1,6 +1,5 @@
 locals {
-  domain      = format("minio.%s", trimprefix("${var.subdomain}.${var.base_domain}", "."))
-  domain_full = format("minio.%s.%s", trimprefix("${var.subdomain}.${var.cluster_name}", "."), var.base_domain)
+  domain = format("minio.%s", trimprefix("${var.subdomain}.${var.base_domain}", "."))
 
   self_signed_cert = {
     extraVolumeMounts = [
@@ -29,7 +28,7 @@ locals {
         clientSecret = var.oidc.client_secret
         claimName    = "policy"
         scopes       = "openid,profile,email"
-        redirectUri  = format("https://%s/oauth_callback", local.domain_full)
+        redirectUri  = format("https://%s/oauth_callback", local.domain)
         claimPrefix  = ""
         comment      = ""
       }
@@ -61,13 +60,11 @@ locals {
           }
           hosts = [
             local.domain,
-            local.domain_full,
           ]
           tls = [{
             secretName = "minio-tls"
             hosts = [
               local.domain,
-              local.domain_full,
             ]
           }]
         }
