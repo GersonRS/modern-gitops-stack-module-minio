@@ -101,6 +101,10 @@ variable "persistence_size" {
   description = "Size of the persistent volume for MinIO data."
   type        = number
   default     = 10
+  validation {
+    condition     = var.persistence_size >= 10
+    error_message = "O tamanho da persistência deve ser pelo menos 10 GB."
+  }
 }
 
 # This variable is used to create policies, users and buckets instead of using hard coded values.
