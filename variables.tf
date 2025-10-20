@@ -61,6 +61,12 @@ variable "helm_values" {
   default     = []
 }
 
+variable "replicas" {
+  description = "Number of replicas for the MinIO instance."
+  type        = number
+  default     = 1
+}
+
 variable "app_autosync" {
   description = "Automated sync options for the Argo CD Application resource."
   type = object({
@@ -84,6 +90,18 @@ variable "dependency_ids" {
 #######################
 ## Module variables
 #######################
+
+variable "mode" {
+  description = "Mode of operation for the MinIO instance."
+  type        = string
+  default     = "standalone"
+}
+
+variable "persistence_size" {
+  description = "Size of the persistent volume for MinIO data."
+  type        = number
+  default     = 10
+}
 
 # This variable is used to create policies, users and buckets instead of using hard coded values.
 variable "config_minio" {

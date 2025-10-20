@@ -40,12 +40,12 @@ locals {
   helm_values = [{
     minio = merge(
       {
-        mode          = "distributed" ## other supported values are "standalone"
+        mode          = var.mode ## other supported values are "standalone"
         drivesPerNode = 2
-        replicas      = 1
+        replicas      = var.replicas
         pools         = 2
         persistence = {
-          size = "10Gi"
+          size = "${var.persistence_size}Gi"
         }
         resources = {
           requests = {
